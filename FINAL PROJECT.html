@@ -1,0 +1,1263 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Banking Appointment System (Frontend Only)</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --muted:#7b7f86;
+      --primary:#2b6ef6;
+      --accent:#ffb86b;
+      --success:#2ecc71;
+      --danger:#ff5c69;
+      --glass: rgba(255,255,255,0.8);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#eef3fb);color:#222;font-size:15px;line-height:1.4}
+    .container{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#6f9bff);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(43,110,246,0.18)}
+    h1{font-size:18px;margin:0}
+    .tabs{display:flex;background:transparent;border-radius:12px;gap:8px;overflow:auto}
+    .tab{padding:10px 14px;border-radius:10px;cursor:pointer;color:var(--muted);border:1px solid transparent;user-select:none}
+    .tab.active{background:var(--card);color:var(--primary);box-shadow:0 6px 18px rgba(43,110,246,0.06);border-color:rgba(43,110,246,0.08)}
+    main{display:grid;grid-template-columns:1fr;gap:18px}
+    .grid-2{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    @media (max-width:900px){.grid-2{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 20px rgba(17,24,39,0.04);border:1px solid rgba(15,23,42,0.03)}
+    .small{font-size:13px;color:var(--muted)}
+    label{display:block;font-weight:600;margin-bottom:6px;color:#333;font-size:14px}
+    input[type="text"], input[type="email"], select, input[type="date"], input[type="time"], textarea{
+      width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;background:transparent;font-size:14px;
+    }
+    button{padding:10px 14px;border-radius:10px;border:0;background:var(--primary);color:white;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px solid #e7ecff;color:var(--primary)}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:12px}
+    .mb{margin-bottom:12px}
+    .status-pill{padding:6px 8px;border-radius:999px;font-weight:600;font-size:13px;display:inline-block}
+    .status-Pending{background:#fff4e5;color:#b26b00;border:1px solid rgba(178,107,0,0.06)}
+    .status-Accepted{background:rgba(46,204,113,0.12);color:var(--success)}
+    .status-Rejected{background:rgba(255,92,105,0.12);color:var(--danger)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .req{border-radius:10px;padding:12px;border:1px dashed #eef2ff;background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.8))}
+    .tiny{font-size:12px;color:var(--muted)}
+    .note{background:#f8f9fc;padding:8px;border-radius:8px;border:1px solid #eff2fb;font-size:13px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .accept{background:var(--success);color:white;border:0;padding:8px 10px;border-radius:8px}
+    .reject{background:var(--danger);color:white;border:0;padding:8px 10px;border-radius:8px}
+    .secondary{background:#f0f6ff;color:var(--primary);border:1px solid rgba(43,110,246,0.08)}
+    .banner{padding:9px;border-radius:8px;background:linear-gradient(90deg,#f7fbff,#ffffff);border:1px solid #e8f0ff;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .left{display:flex;gap:12px;align-items:center}
+    .user-badge{background:linear-gradient(90deg,#eaf3ff,#ffffff);padding:8px;border-radius:8px;border:1px solid #e4eeff}
+    .error{color:var(--danger);font-size:13px;margin-top:6px}
+    .help{font-size:14px;color:var(--muted)}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    .empty{padding:18px;border-radius:10px;text-align:center;color:var(--muted);background:linear-gradient(180deg,#fff,#fbfbff);border:1px solid #f1f5ff}
+    /* tiny form modal */
+    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(8,12,24,0.4);display:flex;align-items:center;justify-content:center;z-index:120}
+    .modal-card{width:440px;max-width:95%;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 20px 60px rgba(3,10,40,0.3)}
+    .flex-between{display:flex;align-items:center;justify-content:space-between}
+    .tiny-muted{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px solid #f2f4f8;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">SB</div>
+        <div>
+          <h1>Smart Banking Appointment System</h1>
+          <div class="small muted">Frontend-only demo · data saved locally in your browser</div>
+        </div>
+      </div>
+
+      <nav class="tabs" id="tabs">
+
+    <div style="display:flex;align-items:center;gap:10px;margin-right:20px;">
+
+<label for="languageSelect"><b>Language</b></label>
+
+<select id="languageSelect">
+
+<option value="en">English</option>
+
+<option value="kn">ಕನ್ನಡ</option>
+
+<option value="hi">हिन्दी</option>
+
+</select>
+
+</div>
+<div class="tab active" data-tab="user" id="tabUser">User Portal</div>
+<div class="tab" data-tab="bank">Bank Portal</div>
+        <div class="tab" data-tab="help" id="tabHelp">About / Help</div></nav>
+    </header>
+
+    <main>
+      <section id="user" class="card">
+        <div id="user-top"></div>
+
+        <div id="user-login-area" style="margin-top:12px"></div>
+
+        <div id="user-dashboard" style="display:none;margin-top:12px">
+          <div class="grid-2">
+            <div>
+              <div class="card mb">
+                <div class="banner">
+                  <div class="left">
+                    <div>
+<div class="tiny-muted" id="appointmentTitle">
+Create Appointment Request
+</div>
+<div style="font-weight:700;font-size:16px" id="welcome-user"></div>
+                    </div>
+                  </div>
+                  <div id="user-login-actions"></div>
+                </div>
+
+                <div style="margin-top:14px">
+                  <div class="mb">
+                    <label for="bankSelect" id="bankLabel">
+Select Bank
+</label>
+                    <select id="bankSelect">
+                      <option value="">Select a bank…</option>
+                      <option>Bank of Shivamogga</option>
+                      <option>PES Urban Bank</option>
+                      <option>Karnataka Grameena Bank</option>
+                      <option>National Trust Bank</option>
+                    </select>
+                    <div class="error" id="err-bank" style="display:none"></div>
+                  </div>
+
+                  <div class="mb">
+<label for="purposeSelect" id="purposeLabel">
+Select purpose of visit
+</label>
+                    <select id="purposeSelect">
+                      <option value="">Select purpose…</option>
+                      <option value="KYC">KYC</option>
+                      <option value="Loan Transaction">Loan Transaction</option>
+                      <option value="Cash Deposit and Withdrawal">Cash Deposit and Withdrawal</option>
+                      <option value="Foreign Transaction">Foreign Transaction</option>
+                      <option value="NEFT">NEFT</option>
+                    </select>
+                    <div id="purposeDesc" class="small muted" style="margin-top:8px">Choose a purpose to see details.</div>
+                    <div class="error" id="err-purpose" style="display:none"></div>
+                  </div>
+
+                  <div class="row mb">
+                    <div style="flex:1">
+                     <label for="dateInput" id="dateLabel">
+Date
+</label>
+                      <input id="dateInput" type="date" />
+                      <div class="error" id="err-date" style="display:none"></div>
+                    </div>
+                    <div style="width:160px">
+                     <label for="timeInput" id="timeLabel">
+Time
+</label>
+                      <input id="timeInput" type="time" />
+                      <div class="error" id="err-time" style="display:none"></div>
+                    </div>
+                  </div>
+
+                  <div class="mb">
+                    <label for="notesInput" id="notesLabel">Additional notes / details <span class="tiny muted">(optional)</span></label>
+                    <textarea id="notesInput" rows="3" placeholder="Document details, amount range, anything helpful..."></textarea>
+                  </div>
+                  <div class="mb">
+<label id="identityLabel">
+Identity Proof<span style="color:red">*</span></label>
+
+    <select id="proofType">
+        <option value="">Select Identity Proof</option>
+        <option value="Aadhaar">Aadhaar Card</option>
+        <option value="PAN">PAN Card</option>
+        <option value="Voter ID">Voter ID</option>
+    </select>
+
+    <br><br>
+
+    <input
+        type="file"
+        id="proofImage"
+        accept="image/*"
+        capture="environment">
+
+    <br><br>
+
+    <img id="proofPreview"
+         style="display:none;width:220px;border:1px solid #ccc;border-radius:8px;">
+</div>
+
+                  <div style="display:flex;gap:10px;align-items:center">
+                   <button id="sendRequestBtn">
+<span id="sendButtonText">
+Send Appointment Request
+</span>
+</button>
+                    <div class="small muted">Requests saved locally. Staff decisions will appear here.</div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="card">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div>
+<div style="font-weight:700" id="tipsTitle">
+Tips
+</div>
+<div class="small muted">Track status for requests created with this account</div>
+                  </div>
+                  <div class="tiny-muted">Auto-updates in this tab</div>
+                </div>
+
+                <div id="userRequests" style="margin-top:12px"></div>
+              </div>
+            </div>
+
+            <aside>
+              <div class="card">
+                <div style="font-weight:700">Tips</div>
+<div class="small muted" style="margin-top:8px">
+
+<div id="tip1">• Choose a realistic date and time when the bank branch is open.</div>
+
+<div id="tip2">• Add clear notes (e.g. document names or amounts).</div>
+
+<div id="tip3">• Bank staff can accept or reject with a note — you'll see it here instantly.</div>
+
+</div>              <div class="card" style="margin-top:12px">
+               <div style="font-weight:700" id="quickInfoTitle">
+Quick Info
+</div>
+                <div class="tiny-muted" style="margin-top:8px">
+                  Purposes:
+                  <ul class="tiny-muted" id="quickInfoList">
+<li><strong>KYC</strong>: Update Aadhaar, PAN, address or other identity proofs.</li>
+                    <li><strong>Loan Transaction</strong>: New loans, EMI discussions, or closure.</li>
+                    <li><strong>Cash Deposit and Withdrawal</strong>: Large cash deposits/withdrawals.</li>
+                    <li><strong>Foreign Transaction</strong>: Forex exchange or international remittances.</li>
+                    <li><strong>NEFT</strong>: Scheduled NEFT transfer queries.</li>
+                  </ul>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="bank" class="card" style="display:none">
+        <div id="bank-top"></div>
+
+        <div id="bank-login-area" style="margin-top:12px"></div>
+
+        <div id="bank-dashboard" style="display:none;margin-top:12px">
+          <div class="card mb">
+            <div class="banner">
+              <div class="left">
+                <div>
+                  <div class="tiny-muted">Bank Staff Console</div>
+                  <div style="font-weight:700;font-size:16px" id="welcome-staff"></div>
+                </div>
+              </div>
+              <div id="staff-login-actions"></div>
+            </div>
+
+            <div style="margin-top:12px">
+              <div class="row" style="align-items:center;gap:12px">
+                <div style="flex:1">
+                  <label for="filterBank">Filter by bank</label>
+                  <select id="filterBank">
+                    <option value="">All banks</option>
+                    <option>Bank of Shivamogga</option>
+                    <option>PES Urban Bank</option>
+                    <option>Karnataka Grameena Bank</option>
+                    <option>National Trust Bank</option>
+                  </select>
+                </div>
+                <div style="width:160px">
+                  <label for="filterStatus">Filter by status</label>
+                  <select id="filterStatus">
+                    <option value="">All statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+                <div style="width:140px">
+                  <label>&nbsp;</label>
+                  <button class="ghost" id="clearFilters">Clear</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-weight:700">Appointment Requests</div>
+                <div class="small muted">Accept or reject requests and add a short note</div>
+              </div>
+              <div class="tiny-muted" id="requestsCount">0 requests</div>
+            </div>
+
+            <div style="margin-top:12px" id="bankRequests"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="help" class="card" style="display:none">
+        <h2 id="helpTitle">About / Help</h2>
+
+<p id="helpDesc">
+This is a frontend-only Smart Banking Appointment System demo. Everything runs in your browser and data is stored in localStorage. Use the tabs above to switch between the User Portal and the Bank Portal. The app simulates real-time updates by re-rendering both views when actions occur.
+</p>
+
+<h3 id="howWorksTitle">How it works</h3>
+
+<ul>
+    <li id="work1">Log in as a Customer and create appointment requests.</li>
+    <li id="work2">Log in as Bank Staff to view pending requests (filter by bank or status).</li>
+    <li id="work3">Accept or Reject requests and add a short note — updates will show in the Customer view instantly.</li>
+</ul>
+
+<h3 id="privacyTitle">Privacy Note</h3>
+
+<p id="privacyDesc">
+All data is saved locally to your browser (no server). If you clear your browser data or open in another browser, the stored data won't be available. For multi-tab syncing, the app listens to storage events (so actions in other tabs/windows also update).
+</p>
+</section>
+    </main>
+
+    <footer class="small muted">Made with care — demo only. Local state is stored using <code>localStorage</code>.</footer>
+  </div>
+
+  <div id="decisionModal" style="display:none" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="flex-between">
+        <div style="font-weight:800" id="decisionTitle">Respond to Request</div>
+        <div><button class="ghost" id="closeModal">Close</button></div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="tiny-muted" id="decisionMeta"></div>
+
+        <div id="qrContainer" style="display: flex; flex-direction: column; align-items: center; background: #f8f9fc; padding: 12px; margin: 12px 0; border-radius: 8px; border: 1px dashed #e2e8f0;">
+          <div id="qrcode"></div>
+          <div class="tiny-muted" style="margin-top: 6px; font-weight: 600;">Scan to view appointment data payload</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label for="decisionNote">Response note</label>
+          <textarea id="decisionNote" rows="3" placeholder="Short note for the user (e.g., bring ID document, amount limits, appointment confirmed)"></textarea>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="accept" id="modalAccept">Accept</button>
+          <button class="reject" id="modalReject">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    /******************************************
+     * Smart Banking Appointment System (Frontend-only)
+     * All state stored in localStorage:
+     * - 'appointments' : array of appointment objects
+     * - 'currentUser' : object {username, email}
+     * - 'currentBankStaff' : object {staffName}
+     ******************************************/
+
+    /* ---------- Utilities & Storage ---------- */
+    const STORAGE_KEYS = {
+      APPTS: 'appointments_v1',
+      USER: 'currentUser_v1',
+      STAFF: 'currentBankStaff_v1'
+    };
+
+    function saveAppointments(arr){ localStorage.setItem(STORAGE_KEYS.APPTS, JSON.stringify(arr)); }
+    function loadAppointments(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.APPTS) || '[]') } catch(e){ return [] } }
+    function setCurrentUser(obj){ if(obj) localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(obj)); else localStorage.removeItem(STORAGE_KEYS.USER); }
+    function getCurrentUser(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || 'null') } catch(e){ return null } }
+    function setCurrentStaff(obj){ if(obj) localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(obj)); else localStorage.removeItem(STORAGE_KEYS.STAFF); }
+    function getCurrentStaff(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || 'null') } catch(e){ return null } }
+
+    // Generate next ID like REQ-001
+    function nextRequestId(){
+      const appts = loadAppointments();
+      if(!appts.length) return 'REQ-001';
+      let max = appts.reduce((m, a) => {
+        const n = parseInt((a.id||'REQ-000').split('-')[1] || '0', 10) || 0;
+        return Math.max(m, n);
+      }, 0);
+      max++;
+      return 'REQ-' + String(max).padStart(3,'0');
+    }
+
+    function nowISO(){ return new Date().toISOString(); }
+
+    /* ---------- Purpose Descriptions ---------- */
+    const purposeDescriptions = {
+      "KYC": "For updating Aadhaar, PAN, address, or other identity proofs.",
+      "Loan Transaction": "For new loans, EMI discussions, or loan closure.",
+      "Cash Deposit and Withdrawal": "For large cash deposits or withdrawals.",
+      "Foreign Transaction": "For foreign currency exchange or international remittances.",
+      "NEFT": "For scheduled NEFT transfers and related queries."
+    };
+
+    /* ---------- DOM Elements ---------- */
+    const tabs = document.getElementById('tabs');
+    const tabEls = Array.from(document.querySelectorAll('.tab'));
+    function switchTab(name){
+      tabEls.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.getElementById('user').style.display = (name === 'user') ? 'block' : 'none';
+      document.getElementById('bank').style.display = (name === 'bank') ? 'block' : 'none';
+      document.getElementById('help').style.display = (name === 'help') ? 'block' : 'none';
+    }
+    tabs.addEventListener('click', (e) => {
+      const t = e.target.closest('.tab');
+      if(t) switchTab(t.dataset.tab);
+    });
+
+    /* ---------- USER LOGIN UI ---------- */
+    const userLoginArea = document.getElementById('user-login-area');
+    const userTop = document.getElementById('user-top');
+    const userDashboard = document.getElementById('user-dashboard');
+    const welcomeUser = document.getElementById('welcome-user');
+    const userLoginActions = document.getElementById('user-login-actions');
+
+    function renderUserLogin(){
+      const cur = getCurrentUser();
+      userTop.innerHTML = '';
+      if(!cur){
+        userLoginArea.innerHTML = `
+          <div class="card">
+<div style="font-weight:700" id="customerLoginTitle">Customer Login</div>
+<div class="small muted" style="margin-top:6px">Enter a username (and optional email) to begin</div>
+            <div style="margin-top:10px">
+<label id="usernameLabel">Username</label>              <input id="loginUsername" type="text" placeholder="e.g., Priya" />
+              <div class="error" id="err-username" style="display:none"></div>
+<label style="margin-top:10px" id="emailLabel">
+Email<span class="small muted">(optional)</span></label>
+              <input id="loginEmail" type="email" placeholder="you@example.com" />
+              <div style="margin-top:10px;display:flex;gap:8px">
+<button id="loginCustomerBtn">
+<span id="loginButtonText">Login as Customer</span>
+</button>
+<button class="ghost" id="loginClearCustomer">Clear</button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('loginCustomerBtn').addEventListener('click', () => {
+          const u = document.getElementById('loginUsername').value.trim();
+          const e = document.getElementById('loginEmail').value.trim();
+          const err = document.getElementById('err-username');
+          if(!u){ err.style.display='block'; err.textContent='Enter a username to login.'; return; }
+          err.style.display='none';
+          setCurrentUser({ username: u, email: e || '' });
+          renderAll();
+        });
+        document.getElementById('loginClearCustomer').addEventListener('click', () => {
+          document.getElementById('loginUsername').value='';
+          document.getElementById('loginEmail').value='';
+        });
+        userDashboard.style.display='none';
+      } else {
+        userLoginArea.innerHTML = '';
+        userDashboard.style.display='block';
+        welcomeUser.textContent = `${cur.username} (Customer)`;
+        userLoginActions.innerHTML = `<div class="user-badge">Logged in as: <strong>${cur.username}</strong></div>
+          <div><button class="ghost" id="logoutCustomer">Logout</button></div>`;
+        document.getElementById('logoutCustomer').addEventListener('click', () => {
+          setCurrentUser(null);
+          renderAll();
+        });
+      }
+    }
+
+    /* ---------- BANK STAFF LOGIN UI ---------- */
+    const bankLoginArea = document.getElementById('bank-login-area');
+    const bankTop = document.getElementById('bank-top');
+    const bankDashboard = document.getElementById('bank-dashboard');
+    const welcomeStaff = document.getElementById('welcome-staff');
+    const staffLoginActions = document.getElementById('staff-login-actions');
+
+    function renderBankLogin(){
+      const cur = getCurrentStaff();
+      bankTop.innerHTML = '';
+      if(!cur){
+        bankLoginArea.innerHTML = `
+          <div class="card">
+            <div style="font-weight:700">Bank Staff Login</div>
+            <div class="small muted" style="margin-top:6px">Enter your staff name or ID</div>
+            <div style="margin-top:10px">
+              <label>Staff Name / ID</label>
+              <input id="staffName" type="text" placeholder="e.g., Bhuvan" />
+              <div class="error" id="err-staff" style="display:none"></div>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <button id="loginStaffBtn">Login as Bank Staff</button>
+                <button class="ghost" id="loginClearStaff">Clear</button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('loginStaffBtn').addEventListener('click', () => {
+          const n = document.getElementById('staffName').value.trim();
+          const err = document.getElementById('err-staff');
+          if(!n){ err.style.display='block'; err.textContent='Enter a staff name or ID.'; return; }
+          err.style.display='none';
+          setCurrentStaff({ staffName: n });
+          renderAll();
+        });
+        document.getElementById('loginClearStaff').addEventListener('click', () => {
+          document.getElementById('staffName').value='';
+        });
+        bankDashboard.style.display='none';
+      } else {
+        bankLoginArea.innerHTML = '';
+        bankDashboard.style.display='block';
+        welcomeStaff.textContent = `${cur.staffName} (Bank Portal)`;
+        staffLoginActions.innerHTML = `<div class="user-badge">Logged in as: <strong>${cur.staffName}</strong></div>
+          <div><button class="ghost" id="logoutStaff">Logout</button></div>`;
+        document.getElementById('logoutStaff').addEventListener('click', () => {
+          setCurrentStaff(null);
+          renderAll();
+        });
+      }
+    }
+
+    /* ---------- User Request Creation ---------- */
+    const bankSelect = document.getElementById('bankSelect');
+    const purposeSelect = document.getElementById('purposeSelect');
+    const purposeDesc = document.getElementById('purposeDesc');
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const notesInput = document.getElementById('notesInput');
+
+    const proofType=document.getElementById("proofType");
+const proofImage=document.getElementById("proofImage");
+const proofPreview=document.getElementById("proofPreview");
+
+let uploadedProof="";
+
+proofImage.addEventListener("change",function(){
+
+const file=this.files[0];
+
+if(!file) return;
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+
+uploadedProof=e.target.result;
+
+proofPreview.src=uploadedProof;
+
+proofPreview.style.display="block";
+
+}
+
+reader.readAsDataURL(file);
+
+});
+    const sendRequestBtn = document.getElementById('sendRequestBtn');
+
+    purposeSelect.addEventListener('change', () => {
+      const v = purposeSelect.value;
+      purposeDesc.textContent = purposeDescriptions[v] || 'Choose a purpose to see details.';
+    });
+
+    sendRequestBtn.addEventListener('click', () => {
+      const curUser = getCurrentUser();
+      const bank = bankSelect.value.trim();
+      const purpose = purposeSelect.value;
+      const date = dateInput.value;
+      const time = timeInput.value;
+      let ok = true;
+      document.getElementById('err-bank').style.display='none';
+      document.getElementById('err-purpose').style.display='none';
+      document.getElementById('err-date').style.display='none';
+      document.getElementById('err-time').style.display='none';
+      if(!curUser){ alert('Please login as a customer first.'); renderAll(); return; }
+      if(!bank){ document.getElementById('err-bank').style.display='block'; document.getElementById('err-bank').textContent='Please select a bank.'; ok=false; }
+      if(!purpose){ document.getElementById('err-purpose').style.display='block'; document.getElementById('err-purpose').textContent='Please select a purpose.'; ok=false; }
+      if(!date){ document.getElementById('err-date').style.display='block'; document.getElementById('err-date').textContent='Please pick a date.'; ok=false; }
+      if(!time){ document.getElementById('err-time').style.display='block'; document.getElementById('err-time').textContent='Please pick a time.'; ok=false; }
+      if(!ok) return;
+
+    if(proofType.value==""){
+
+alert("Select Identity Proof");
+
+return;
+
+}
+
+if(uploadedProof==""){
+    alert("Upload Identity Proof");
+    return;
+}
+      const appts = loadAppointments();
+      const newReq = {
+        id: nextRequestId(),
+        userName: curUser.username,
+        userEmail: curUser.email || '',
+        bankName: bank,
+        purpose: purpose,
+
+        proofType: proofType.value,
+proofImage: uploadedProof,
+        date: date,
+        time: time,
+        notes: notesInput.value.trim(),
+        status: "Pending",
+        bankResponseNote: "",
+        createdAt: nowISO()
+      };
+      appts.push(newReq);
+      saveAppointments(appts);
+
+      bankSelect.value=''; purposeSelect.value=''; purposeDesc.textContent='Choose a purpose to see details.';
+      dateInput.value=''; timeInput.value=''; notesInput.value='';proofType.value="";
+
+proofImage.value="";
+
+proofPreview.style.display="none";
+
+proofPreview.src="";
+
+uploadedProof="";
+
+      renderAll();
+      alert('Appointment request sent! Request ID: ' + newReq.id);
+    });
+
+    /* ---------- Render User Requests List ---------- */
+    const userRequestsDiv = document.getElementById('userRequests');
+
+    function renderUserRequests(){
+      const curUser = getCurrentUser();
+      if(!curUser){ userRequestsDiv.innerHTML = `<div class="empty">Login to create and view your requests.</div>`; return; }
+
+      const appts = loadAppointments().filter(a => a.userName === curUser.username && a.userEmail === curUser.email);
+      if(!appts.length){
+        userRequestsDiv.innerHTML = `<div class="empty">No requests created yet. Send an appointment from the form above.</div>`;
+        return;
+      }
+
+      userRequestsDiv.innerHTML = '';
+      const list = document.createElement('div');
+      list.className = 'list';
+      appts.slice().reverse().forEach(a => {
+        const el = document.createElement('div');
+        el.className = 'req';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:700">${a.bankName} · ${a.purpose}</div>
+              <div class="tiny-muted">${a.date} • ${a.time} · Request ID: ${a.id}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="status-pill status-${a.status}">${a.status}</div>
+              <div class="tiny-muted" style="margin-top:6px">Created: ${new Date(a.createdAt).toLocaleString()}</div>
+            </div>
+          </div>
+          <div style="margin-top:8px" class="note">${a.notes ? escapeHtml(a.notes) : '<span class="tiny-muted">No extra notes</span>'}</div>
+          <div style="margin-top:8px">
+            <div class="tiny-muted">Bank response:</div>
+            <div style="margin-top:6px">${a.bankResponseNote ? escapeHtml(a.bankResponseNote) : '<span class="tiny-muted">No response yet</span>'}</div>
+          </div>
+          <div style="margin-top:10px" class="actions">
+            <button class="secondary" data-action="view" data-id="${a.id}">View QR Code & Details</button>
+          </div>
+        `;
+        userRequestsDiv.appendChild(el);
+      });
+
+      // Attach listener for user details view
+      userRequestsDiv.querySelectorAll('button[data-action="view"]').forEach(btn => {
+        btn.addEventListener('click', () => openDecisionModal(btn.dataset.id, false));
+      });
+    }
+
+    /* ---------- Render Bank Requests List ---------- */
+    const bankRequestsDiv = document.getElementById('bankRequests');
+    const requestsCount = document.getElementById('requestsCount');
+    const filterBank = document.getElementById('filterBank');
+    const filterStatus = document.getElementById('filterStatus');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    filterBank.addEventListener('change', renderBankRequests);
+    filterStatus.addEventListener('change', renderBankRequests);
+    clearFiltersBtn.addEventListener('click', () => { filterBank.value=''; filterStatus.value=''; renderBankRequests(); })
+
+    function renderBankRequests(){
+      const curStaff = getCurrentStaff();
+      if(!curStaff){ bankRequestsDiv.innerHTML = `<div class="empty">Login as bank staff to view requests.</div>`; requestsCount.textContent='0 requests'; return; }
+
+      const apptsAll = loadAppointments();
+      const fb = filterBank.value;
+      const fs = filterStatus.value;
+      const filtered = apptsAll.filter(a => {
+        if(fb && a.bankName !== fb) return false;
+        if(fs && a.status !== fs) return false;
+        return true;
+      });
+
+      requestsCount.textContent = `${filtered.length} request${filtered.length !== 1 ? 's' : ''}`;
+
+      if(!filtered.length){
+        bankRequestsDiv.innerHTML = `<div class="empty">No matching requests found.</div>`;
+        return;
+      }
+
+      bankRequestsDiv.innerHTML = '';
+      const list = document.createElement('div');
+      list.className = 'list';
+      filtered.slice().reverse().forEach(a => {
+        const el = document.createElement('div');
+        el.className = 'req';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:700">${escapeHtml(a.userName)} · ${a.bankName}</div>
+              <div class="tiny-muted">Purpose: ${a.purpose} · ${a.date} • ${a.time} · ID: ${a.id}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="status-pill status-${a.status}">${a.status}</div>
+              <div class="tiny-muted" style="margin-top:6px">Created: ${new Date(a.createdAt).toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px" class="note">
+            <div><strong>User notes:</strong></div>
+         <hr>
+
+<strong>Identity Proof:</strong>
+
+${a.proofType}
+
+<br><br>
+
+<img
+
+src="${a.proofImage}"
+
+style="width:180px;border:1px solid #ccc;border-radius:8px;cursor:pointer"
+
+onclick="window.open('${a.proofImage}')">
+
+<br><br>
+            <div style="margin-top:6px">${a.notes ? escapeHtml(a.notes) : '<span class="tiny-muted">No notes</span>'}</div>
+            <div style="margin-top:8px"><strong>Contact:</strong> ${a.userEmail ? escapeHtml(a.userEmail) : '<span class="tiny-muted">No email provided</span>'}</div>
+          </div>
+
+          <div style="margin-top:10px" class="actions">
+            ${a.status === 'Pending' ? `<button class="accept" data-action="accept" data-id="${a.id}">Accept</button>
+            <button class="reject" data-action="reject" data-id="${a.id}">Reject</button>` : ''}
+            <button class="secondary" data-action="view" data-id="${a.id}">View Details & QR</button>
+          </div>
+
+          ${a.bankResponseNote ? `<div style="margin-top:10px"><strong>Response note:</strong><div style="margin-top:6px">${escapeHtml(a.bankResponseNote)}</div></div>` : ''}
+        `;
+        list.appendChild(el);
+      });
+      bankRequestsDiv.appendChild(list);
+
+      bankRequestsDiv.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const action = btn.dataset.action;
+          const id = btn.dataset.id;
+          if(action === 'view'){
+            openDecisionModal(id, false);
+          } else {
+            openDecisionModal(id, action === 'accept');
+          }
+        });
+      });
+    }
+
+    /* ---------- Modal View & QR Engine ---------- */
+    const decisionModal = document.getElementById('decisionModal');
+    const decisionTitle = document.getElementById('decisionTitle');
+    const decisionMeta = document.getElementById('decisionMeta');
+    const decisionNote = document.getElementById('decisionNote');
+    const modalAccept = document.getElementById('modalAccept');
+    const modalReject = document.getElementById('modalReject');
+    const closeModal = document.getElementById('closeModal');
+
+    let currentModalRequestId = null;
+    let currentModalDefaultAction = null;
+
+    function openDecisionModal(id, suggestAccept = true){
+      const appts = loadAppointments();
+      const a = appts.find(x => x.id === id);
+      if(!a) return alert('Request not found');
+
+      currentModalRequestId = id;
+      currentModalDefaultAction = suggestAccept ? 'accept' : 'view';
+      decisionTitle.textContent = `Details for ${a.id}`;
+      decisionMeta.textContent = `${a.userName} — ${a.bankName} · ${a.purpose} · ${a.date} ${a.time}`;
+      decisionNote.value = a.bankResponseNote || '';
+      decisionModal.style.display = 'flex';
+      decisionModal.setAttribute('aria-hidden', 'false');
+
+      // Hide accept/reject controls if the current portal state is not pending or if viewed by customer
+      const currentStaff = getCurrentStaff();
+      if(a.status !== 'Pending' || !currentStaff){
+        modalAccept.style.display = 'none';
+        modalReject.style.display = 'none';
+      } else {
+        modalAccept.style.display = 'inline-block';
+        modalReject.style.display = 'inline-block';
+      }
+
+      // Generate the fresh QR code structure
+      const qrTargetDiv = document.getElementById("qrcode");
+      qrTargetDiv.innerHTML = ""; // Clean old Canvas elements
+
+      const qrPayload = JSON.stringify({
+        id: a.id,
+        user: a.userName,
+        bank: a.bankName,
+        purpose: a.purpose,
+        schedule: `${a.date} @ ${a.time}`,
+        status: a.status
+      });
+
+      new QRCode(qrTargetDiv, {
+        text: qrPayload,
+        width: 128,
+        height: 128,
+        colorDark : "#2b6ef6", // Primary brand tone mapping
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+      });
+    }
+
+    closeModal.addEventListener('click', () => closeDecisionModal());
+    decisionModal.addEventListener('click', (e) => {
+      if(e.target === decisionModal) closeDecisionModal();
+    });
+
+    function closeDecisionModal(){
+      currentModalRequestId = null;
+      decisionNote.value='';
+      decisionModal.style.display='none';
+      decisionModal.setAttribute('aria-hidden', 'true');
+    }
+
+    modalAccept.addEventListener('click', () => handleDecision('Accepted'));
+    modalReject.addEventListener('click', () => handleDecision('Rejected'));
+
+    function handleDecision(status){
+      const staff = getCurrentStaff();
+      if(!staff){ alert('Please login as bank staff'); closeDecisionModal(); return; }
+      const note = decisionNote.value.trim();
+      if(!currentModalRequestId){ alert('No request selected'); return; }
+
+      const appts = loadAppointments();
+      const idx = appts.findIndex(a => a.id === currentModalRequestId);
+      if(idx === -1){ alert('Request not found'); closeDecisionModal(); return; }
+
+      appts[idx].status = status;
+      appts[idx].bankResponseNote = note;
+      appts[idx].responseBy = staff.staffName;
+      appts[idx].responseAt = nowISO();
+      saveAppointments(appts);
+
+      renderAll();
+      closeDecisionModal();
+    }
+
+    /* ---------- Helpers & System Initialization ---------- */
+    function escapeHtml(s){
+      if(!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderAll(){
+      renderUserLogin();
+      renderBankLogin();
+      renderUserRequests();
+      renderBankRequests();
+    }
+
+    renderAll();
+
+    window.addEventListener('storage', (ev) => {
+      if([STORAGE_KEYS.APPTS, STORAGE_KEYS.USER, STORAGE_KEYS.STAFF].includes(ev.key)){
+        renderAll();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if(e.ctrlKey && e.key.toLowerCase()==='1'){ switchTab('user'); }
+      if(e.ctrlKey && e.key.toLowerCase()==='2'){ switchTab('bank'); }
+      if(e.ctrlKey && e.key.toLowerCase()==='3'){ switchTab('help'); }
+    });
+
+    /* ===========================
+   LANGUAGE TRANSLATION
+=========================== */
+
+const translations = {
+
+en:{
+
+userPortal:"User Portal",
+aboutHelp:"About / Help",
+customerLogin:"Customer Login",
+loginBtn:"Login as Customer",
+
+username:"Username",
+email:"Email",
+
+createAppointment:"Create Appointment Request",
+
+selectBank:"Select Bank",
+selectPurpose:"Select Purpose of Visit",
+
+date:"Date",
+time:"Preferred Time",
+
+notes:"Additional Notes",
+
+identity:"Identity Proof",
+
+send:"Send Appointment Request",
+
+tips:"Tips",
+quickInfo:"Quick Info",
+
+selectBankOption:"-- Select Bank --",
+selectPurposeOption:"-- Select Purpose --",
+
+additionalNotesPlaceholder:"Document details, amount range, anything helpful...",
+
+uploadProof:"Choose Identity Proof",
+
+bank1:"State Bank of India",
+bank2:"Canara Bank",
+bank3:"HDFC Bank",
+bank4:"ICICI Bank",
+bank5:"Axis Bank",
+
+purpose1:"Open Savings Account",
+purpose2:"Loan Enquiry",
+purpose3:"Deposit Cash",
+purpose4:"Withdraw Cash",
+purpose5:"KYC Update",
+purpose6:"Credit Card",
+purpose7:"Locker Facility",
+
+tip1:"Choose a realistic date and time when the bank branch is open.",
+tip2:"Add clear notes (e.g., document names or amounts).",
+tip3:"Bank staff can accept or reject with a note — you'll see it here instantly.",
+
+quick1:"Update Aadhaar, PAN, address or other identity proofs.",
+quick2:"New loans, EMI discussions or loan closure.",
+quick3:"Large cash deposits and withdrawals.",
+quick4:"Forex exchange or international remittance services.",
+quick5:"NEFT / RTGS transfer assistance.",
+
+
+helpTitle: "About / Help",
+
+helpDesc: "This is a frontend-only Smart Banking Appointment System demo. Everything runs in your browser and data is stored in localStorage. Use the tabs above to switch between the User Portal and the Bank Portal. The app simulates real-time updates by re-rendering both views when actions occur.",
+
+howWorks: "How it works",
+
+work1: "Log in as a Customer and create appointment requests.",
+work2: "Log in as Bank Staff to view pending requests (filter by bank or status).",
+work3: "Accept or Reject requests and add a short note — updates will show in the Customer view instantly.",
+
+privacyTitle: "Privacy Note",
+
+privacyDesc: "All data is saved locally to your browser (no server). If you clear your browser data or open it in another browser, the stored data won't be available. The app also listens for storage events so updates appear across browser tabs."
+
+},
+
+kn:{
+
+userPortal:"ಬಳಕೆದಾರ ಪೋರ್ಟಲ್",
+aboutHelp:"ಮಾಹಿತಿ / ಸಹಾಯ",
+customerLogin:"ಗ್ರಾಹಕ ಲಾಗಿನ್",
+loginBtn:"ಗ್ರಾಹಕರಾಗಿ ಲಾಗಿನ್",
+
+username:"ಬಳಕೆದಾರ ಹೆಸರು",
+email:"ಇಮೇಲ್",
+
+createAppointment:"ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ವಿನಂತಿ",
+
+selectBank:"ಬ್ಯಾಂಕ್ ಆಯ್ಕೆಮಾಡಿ",
+selectPurpose:"ಭೇಟಿಯ ಉದ್ದೇಶ",
+
+date:"ದಿನಾಂಕ",
+time:"ಆದ್ಯತೆಯ ಸಮಯ",
+
+notes:"ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ",
+
+identity:"ಗುರುತಿನ ದಾಖಲೆ",
+
+send:"ವಿನಂತಿ ಕಳುಹಿಸಿ",
+
+tips:"ಸಲಹೆಗಳು",
+quickInfo:"ತ್ವರಿತ ಮಾಹಿತಿ",
+
+selectBankOption:"-- ಬ್ಯಾಂಕ್ ಆಯ್ಕೆಮಾಡಿ --",
+selectPurposeOption:"-- ಉದ್ದೇಶ ಆಯ್ಕೆಮಾಡಿ --",
+
+additionalNotesPlaceholder:"ಹೆಚ್ಚುವರಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ...",
+
+uploadProof:"ಗುರುತಿನ ದಾಖಲೆ ಆಯ್ಕೆಮಾಡಿ",
+
+bank1:"ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಆಫ್ ಇಂಡಿಯಾ",
+bank2:"ಕೆನರಾ ಬ್ಯಾಂಕ್",
+bank3:"ಎಚ್‌ಡಿಎಫ್‌ಸಿ ಬ್ಯಾಂಕ್",
+bank4:"ಐಸಿಐಸಿಐ ಬ್ಯಾಂಕ್",
+bank5:"ಆಕ್ಸಿಸ್ ಬ್ಯಾಂಕ್",
+
+purpose1:"ಉಳಿತಾಯ ಖಾತೆ ತೆರೆಯಿರಿ",
+purpose2:"ಸಾಲದ ಮಾಹಿತಿ",
+purpose3:"ನಗದು ಠೇವಣಿ",
+purpose4:"ನಗದು ಹಿಂಪಡೆಯಿರಿ",
+purpose5:"ಕೆವೈಸಿ ನವೀಕರಣ",
+purpose6:"ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್",
+purpose7:"ಲಾಕರ್ ಸೌಲಭ್ಯ",
+
+tip1:"ಬ್ಯಾಂಕ್ ಶಾಖೆ ತೆರೆಯಿರುವ ನೈಜ ದಿನಾಂಕ ಮತ್ತು ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+tip2:"ಸ್ಪಷ್ಟವಾದ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸೇರಿಸಿ (ಉದಾ., ದಾಖಲೆಗಳ ಹೆಸರು ಅಥವಾ ಮೊತ್ತ).",
+tip3:"ಬ್ಯಾಂಕ್ ಸಿಬ್ಬಂದಿ ಟಿಪ್ಪಣಿಯೊಂದಿಗೆ ವಿನಂತಿಯನ್ನು ಅಂಗೀಕರಿಸಬಹುದು ಅಥವಾ ತಿರಸ್ಕರಿಸಬಹುದು — ಅದರ ಮಾಹಿತಿಯನ್ನು ಇಲ್ಲಿ ತಕ್ಷಣ ನೋಡಬಹುದು.",
+
+quick1:"ಆಧಾರ್, PAN, ವಿಳಾಸ ಅಥವಾ ಇತರ ಗುರುತಿನ ದಾಖಲೆಗಳನ್ನು ನವೀಕರಿಸಿ.",
+quick2:"ಹೊಸ ಸಾಲಗಳು, EMI ಮಾಹಿತಿ ಅಥವಾ ಸಾಲ ಮುಕ್ತಾಯ.",
+quick3:"ದೊಡ್ಡ ಮೊತ್ತದ ನಗದು ಠೇವಣಿ ಮತ್ತು ಹಿಂಪಡೆಯುವಿಕೆ.",
+quick4:"ವಿದೇಶಿ ವಿನಿಮಯ ಅಥವಾ ಅಂತರರಾಷ್ಟ್ರೀಯ ಹಣ ವರ್ಗಾವಣೆ ಸೇವೆಗಳು.",
+quick5:"NEFT / RTGS ಹಣ ವರ್ಗಾವಣೆ ಸಹಾಯ.",
+
+
+helpTitle: "ಮಾಹಿತಿ / ಸಹಾಯ",
+
+helpDesc: "ಇದು ಫ್ರಂಟ್‌ಎಂಡ್ ಆಧಾರಿತ ಸ್ಮಾರ್ಟ್ ಬ್ಯಾಂಕಿಂಗ್ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ವ್ಯವಸ್ಥೆಯ ಡೆಮೊ. ಎಲ್ಲವೂ ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲೇ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ ಮತ್ತು ಡೇಟಾವನ್ನು localStorage ನಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ. ಮೇಲಿನ ಟ್ಯಾಬ್‌ಗಳನ್ನು ಬಳಸಿ ಬಳಕೆದಾರ ಪೋರ್ಟಲ್ ಮತ್ತು ಬ್ಯಾಂಕ್ ಪೋರ್ಟಲ್ ನಡುವೆ ಬದಲಾಯಿಸಬಹುದು.",
+
+howWorks: "ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ",
+
+work1: "ಗ್ರಾಹಕರಾಗಿ ಲಾಗಿನ್ ಮಾಡಿ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ವಿನಂತಿಯನ್ನು ರಚಿಸಿ.",
+work2: "ಬ್ಯಾಂಕ್ ಸಿಬ್ಬಂದಿಯಾಗಿ ಲಾಗಿನ್ ಮಾಡಿ ಬಾಕಿ ಇರುವ ವಿನಂತಿಗಳನ್ನು ವೀಕ್ಷಿಸಿ.",
+work3: "ವಿನಂತಿಯನ್ನು ಅಂಗೀಕರಿಸಿ ಅಥವಾ ತಿರಸ್ಕರಿಸಿ ಮತ್ತು ಟಿಪ್ಪಣಿ ಸೇರಿಸಿ. ಬದಲಾವಣೆಗಳು ತಕ್ಷಣ ಬಳಕೆದಾರರಿಗೆ ಕಾಣಿಸುತ್ತವೆ.",
+
+privacyTitle: "ಗೌಪ್ಯತಾ ಸೂಚನೆ",
+
+privacyDesc: "ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಸ್ಥಳೀಯವಾಗಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ. ಬ್ರೌಸರ್ ಡೇಟಾವನ್ನು ಅಳಿಸಿದರೆ ಅಥವಾ ಬೇರೆ ಬ್ರೌಸರ್ ಬಳಸಿದರೆ ಈ ಮಾಹಿತಿ ಲಭ್ಯವಿರುವುದಿಲ್ಲ."
+
+},
+
+hi:{
+
+userPortal:"यूज़र पोर्टल",
+aboutHelp:"जानकारी / सहायता",
+customerLogin:"ग्राहक लॉगिन",
+loginBtn:"ग्राहक के रूप में लॉगिन",
+
+username:"उपयोगकर्ता नाम",
+email:"ईमेल",
+
+createAppointment:"अपॉइंटमेंट अनुरोध",
+
+selectBank:"बैंक चुनें",
+selectPurpose:"यात्रा का उद्देश्य",
+
+date:"तारीख",
+time:"पसंदीदा समय",
+
+notes:"अतिरिक्त जानकारी",
+
+identity:"पहचान प्रमाण",
+
+send:"अनुरोध भेजें",
+
+tips:"सुझाव",
+quickInfo:"त्वरित जानकारी",
+
+selectBankOption:"-- बैंक चुनें --",
+selectPurposeOption:"-- उद्देश्य चुनें --",
+
+additionalNotesPlaceholder:"अतिरिक्त विवरण दर्ज करें...",
+
+uploadProof:"पहचान प्रमाण चुनें",
+
+bank1:"स्टेट बैंक ऑफ इंडिया",
+bank2:"केनरा बैंक",
+bank3:"एचडीएफसी बैंक",
+bank4:"आईसीआईसीआई बैंक",
+bank5:"एक्सिस बैंक",
+
+purpose1:"बचत खाता खोलें",
+purpose2:"ऋण जानकारी",
+purpose3:"नकद जमा",
+purpose4:"नकद निकासी",
+purpose5:"केवाईसी अपडेट",
+purpose6:"क्रेडिट कार्ड",
+purpose7:"लॉकर सुविधा",
+
+tip1:"बैंक शाखा खुली रहने की वास्तविक तिथि और समय चुनें।",
+tip2:"स्पष्ट विवरण जोड़ें (जैसे दस्तावेज़ का नाम या राशि)।",
+tip3:"बैंक कर्मचारी टिप्पणी के साथ अनुरोध स्वीकार या अस्वीकार कर सकते हैं — आप इसे यहाँ तुरंत देखेंगे।",
+
+quick1:"आधार, PAN, पता या अन्य पहचान प्रमाण अपडेट करें।",
+quick2:"नए ऋण, EMI जानकारी या ऋण समापन।",
+quick3:"बड़ी नकद जमा और निकासी।",
+quick4:"विदेशी मुद्रा विनिमय या अंतरराष्ट्रीय धन प्रेषण सेवाएँ।",
+quick5:"NEFT / RTGS ट्रांसफर सहायता।",
+
+
+helpTitle: "जानकारी / सहायता",
+
+helpDesc: "यह केवल फ्रंटएंड आधारित स्मार्ट बैंकिंग अपॉइंटमेंट सिस्टम का डेमो है। सब कुछ आपके ब्राउज़र में चलता है और डेटा localStorage में संग्रहीत होता है। ऊपर दिए गए टैब का उपयोग करके यूज़र पोर्टल और बैंक पोर्टल के बीच बदल सकते हैं।",
+
+howWorks: "यह कैसे काम करता है",
+
+work1: "ग्राहक के रूप में लॉगिन करें और अपॉइंटमेंट अनुरोध बनाएं।",
+work2: "बैंक स्टाफ के रूप में लॉगिन करें और लंबित अनुरोध देखें।",
+work3: "अनुरोध स्वीकार या अस्वीकार करें और टिप्पणी जोड़ें। परिवर्तन तुरंत ग्राहक को दिखाई देंगे।",
+
+privacyTitle: "गोपनीयता सूचना",
+
+privacyDesc: "सभी डेटा आपके ब्राउज़र में स्थानीय रूप से संग्रहीत होता है। यदि आप ब्राउज़र डेटा साफ़ करते हैं या किसी अन्य ब्राउज़र का उपयोग करते हैं, तो डेटा उपलब्ध नहीं होगा।"
+}
+
+};
+
+
+const languageSelect = document.getElementById("languageSelect");
+
+function changeLanguage(lang){
+
+localStorage.setItem("language",lang);
+
+const t = translations[lang];
+
+document.getElementById("tabUser").innerText = t.userPortal;
+document.getElementById("tabHelp").innerText = t.aboutHelp;
+
+document.getElementById("customerLoginTitle").innerText = t.customerLogin;
+
+document.getElementById("usernameLabel").innerText = t.username;
+
+document.getElementById("emailLabel").innerText = t.email;
+
+document.getElementById("loginButtonText").innerText = t.loginBtn;
+
+document.getElementById("appointmentTitle").innerText = t.createAppointment;
+
+document.getElementById("bankLabel").innerText = t.selectBank;
+
+document.getElementById("purposeLabel").innerText = t.selectPurpose;
+
+document.getElementById("dateLabel").innerText = t.date;
+
+document.getElementById("timeLabel").innerText = t.time;
+
+document.getElementById("notesLabel").childNodes[0].textContent = t.notes + " ";
+
+document.getElementById("identityLabel").childNodes[0].textContent = t.identity + " ";
+
+document.getElementById("sendButtonText").innerText = t.send;
+
+document.getElementById("tipsTitle").innerText = t.tips;
+
+document.getElementById("quickInfoTitle").innerText = t.quickInfo;
+document.getElementById("tip1").innerText = t.tip1;
+document.getElementById("tip2").innerText = t.tip2;
+document.getElementById("tip3").innerText = t.tip3;
+document.getElementById("quickInfoList").innerHTML = `
+<li><strong>KYC</strong>: ${t.quick1}</li>
+<li><strong>Loan Transaction</strong>: ${t.quick2}</li>
+<li><strong>Cash Deposit</strong>: ${t.quick3}</li>
+<li><strong>Foreign Transaction</strong>: ${t.quick4}</li>
+<li><strong>NEFT / RTGS</strong>: ${t.quick5}</li>
+`;
+
+ document.getElementById("helpTitle").innerText = t.helpTitle;
+document.getElementById("helpDesc").innerText = t.helpDesc;
+
+document.getElementById("howWorksTitle").innerText = t.howWorks;
+
+document.getElementById("work1").innerText = t.work1;
+document.getElementById("work2").innerText = t.work2;
+document.getElementById("work3").innerText = t.work3;
+
+document.getElementById("privacyTitle").innerText = t.privacyTitle;
+document.getElementById("privacyDesc").innerText = t.privacyDesc;
+
+document.getElementById("quickInfoList").innerHTML = `
+<li>${t.quick1}</li>
+<li>${t.quick2}</li>
+<li>${t.quick3}</li>
+`;
+
+/* ========= Translate Placeholders ========= */
+
+document.getElementById("notesInput").placeholder =
+    t.additionalNotesPlaceholder;
+
+/* ========= Identity Proof Dropdown ========= */
+
+proofType.options[0].text = t.uploadProof;
+proofType.options[1].text = "Aadhaar Card";
+proofType.options[2].text = "PAN Card";
+proofType.options[3].text = "Voter ID";
+
+/* ========= Bank Dropdown ========= */
+
+bankSelect.options[0].text = t.selectBankOption;
+bankSelect.options[1].text = t.bank1;
+bankSelect.options[2].text = t.bank2;
+bankSelect.options[3].text = t.bank3;
+bankSelect.options[4].text = t.bank4;
+bankSelect.options[5].text = t.bank5;
+
+/* ========= Purpose Dropdown ========= */
+
+purposeSelect.options[0].text = t.selectPurposeOption;
+purposeSelect.options[1].text = t.purpose1;
+purposeSelect.options[2].text = t.purpose2;
+purposeSelect.options[3].text = t.purpose3;
+purposeSelect.options[4].text = t.purpose4;
+purposeSelect.options[5].text = t.purpose5;
+purposeSelect.options[6].text = t.purpose6;
+purposeSelect.options[7].text = t.purpose7;
+
+}
+languageSelect.addEventListener("change",function(){
+
+changeLanguage(this.value);
+
+});
+const savedLanguage = localStorage.getItem("language") || "en";
+
+languageSelect.value = savedLanguage;
+
+changeLanguage(savedLanguage);
+  </script>
+</body>
+</html>
